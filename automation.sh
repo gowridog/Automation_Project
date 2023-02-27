@@ -37,3 +37,26 @@ sudo tar -cvf /tmp/"${name}-httpd-logs-${timestamp}.tar" /var/log/apache2/*.log
 # To upload tar files to S3 bucket
 aws s3 cp /tmp/${name}-httpd-logs-${timestamp}.tar s3://${s3_bucket}/${name}-httpd-logs-${timestamp}.tar
 
+
+#Script for generating the HTML file for Bookkeeping
+
+if [[ ! -f var/www/html/inventory.html ]];
+then
+        echo -e Log Type\ \Date Created\ \Type\ \Size > /var/www/html/inventory.html
+fi
+
+if [[ -f /var/www/html/inventory.html ]];
+
+then
+        size=$(du -h /tmp/"${name}-httpd-logs-${timestamp}.tar" | awk '{print $1}')
+
+        echo -e "httpd-logs\t- \t$(date '+%d%m%Y-%H%M%S')\t- \ttar\t -\t${size}" >> /var/www/html/inventory.html
+
+fi
+
+#Cron job for automation
+
+if [[ ! -f /etc/cron.d/automation ]];
+then
+        echo "* * * * * root /root/Automation_Project/automation.sh" >> /etc/cron.d/automation
+fi
